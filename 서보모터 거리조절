@@ -8,15 +8,15 @@
 
 // configurable parameters for sonar
 #define SND_VEL 346.0     // sound velocity at 24 celsius degree (unit: m/sec)
-#define INTERVAL 20      // sampling interval (unit: msec)
+#define INTERVAL 25      // sampling interval (unit: msec)
 #define PULSE_DURATION 10 // ultra-sound Pulse Duration (unit: usec)
-#define _DIST_MIN 20.0   // minimum distance to be measured (unit: mm)
+#define _DIST_MIN 90.0   // minimum distance to be measured (unit: mm)
 #define _DIST_MAX 180.0   // maximum distance to be measured (unit: mm)
 
 #define TIMEOUT ((INTERVAL / 2) * 1000.0) // maximum echo waiting time (unit: usec)
 #define SCALE (0.001 * 0.5 * SND_VEL) // coefficent to convert duration to distance
 
-#define _EMA_ALPHA 0.2    // EMA weight of new sample (range: 0 to 1)
+#define _EMA_ALPHA 0.3    // EMA weight of new sample (range: 0 to 1)
                           // Setting EMA to 1 effectively disables EMA filter.
 
 // Target Distance
@@ -26,11 +26,9 @@
 // duty duration for myservo.writeMicroseconds()
 // NEEDS TUNING (servo by servo)
 
-#define _DUTY_MIN 370 // servo full clockwise position (0 degree)
+#define _DUTY_MIN 500 // servo full clockwise position (0 degree)
 #define _DUTY_NEU 1500 // servo neutral position (90 degree)
 #define _DUTY_MAX 2500 // servo full counterclockwise position (180 degree)
-
-
 
 // global variables
 float  dist_ema, dist_prev = _DIST_MAX; // unit: mm
@@ -89,10 +87,9 @@ void loop() {
     myservo.writeMicroseconds(_DUTY_MAX);
   }
   else
-  {
-    float ratio = (dist_ema - _DIST_MIN) / (_DIST_MAX - _DIST_MIN);
-    float percentAngle = _DUTY_MAX - _DUTY_MIN;
-    int angle = _DUTY_MIN + (int)(percentAngle * ratio);
+ {
+    float rat = (dist_ema - _DIST_MIN) / (_DIST_MAX - _DIST_MIN);
+    int angle = _DUTY_MIN + (int)(_DUTY_MAX - _DUTY_MIN * rat);
     myservo.writeMicroseconds(angle);
   }
 
